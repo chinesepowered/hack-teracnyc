@@ -1,4 +1,4 @@
-import { BASE_URL, GIGS, SLACK_WEBHOOK_URL, llmReady } from '../config.js';
+import { BASE_URL, GIGS, SLACK_WEBHOOK_URL } from '../config.js';
 import { arr, obj, str, writeJson } from '../llm.js';
 import { db, log, newId, stats, touch } from '../store.js';
 
@@ -12,9 +12,9 @@ const SCHEMA = obj({
 });
 
 export async function draftPosts(angle = 'launch') {
-  if (!llmReady()) return [];
   const prices = Object.values(GIGS).map((g) => `${g.title}: $${db.settings.prices[g.id] ?? g.price}`).join(', ');
   const out = await writeJson({
+    agent: 'hype',
     system: SYSTEM,
     prompt: `Angle: ${angle}\nLink: ${BASE_URL}\nPrices: ${prices}\nLive stats: ${JSON.stringify(stats())}`,
     schema: SCHEMA,

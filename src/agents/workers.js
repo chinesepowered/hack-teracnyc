@@ -1,6 +1,6 @@
 import { EXA_API_KEY, GIGS, STAFF } from '../config.js';
 import { exaSearch } from '../exa.js';
-import { arr, createMessage, obj, str, textOf, writeJson } from '../llm.js';
+import { agentMode, arr, createMessage, obj, str, textOf, writeJson } from '../llm.js';
 import { db, findOrder, log, newId, touch } from '../store.js';
 
 // ---------- output schemas ----------
@@ -109,7 +109,11 @@ async function research(brief) {
 export async function produce(gig, brief, feedback = null, previous = null) {
   const schema = feedback ? withChanges(SCHEMAS[gig]) : SCHEMAS[gig];
   let context = '';
-  if (gig === 'report') context = `\n\nResearch notes:\n${await research(brief)}`;
+  if (gig === 'report') {
+    context = agentMode() && !EXA_API_KEY
+      ? '\n\nResearch: search the live web for real competitors and their current pricing before writing. List only URLs you actually used in sources.'
+      : `\n\nResearch notes:\n${await research(brief)}`;
+  }
   const revision = feedback
     ? `\n\nThis is a REVISION. Your previous draft:\n${JSON.stringify(previous).slice(0, 12000)}\n\n` +
       `${feedback.n} real people rated it ${feedback.avg}/10 on average. What they said:\n` +
@@ -117,6 +121,7 @@ export async function produce(gig, brief, feedback = null, previous = null) {
       `\n\nKeep what worked, fix what they flagged, and make it clearly better.`
     : '';
   const result = await writeJson({
+    agent: GIGS[gig].worker,
     system: SYSTEMS[gig],
     prompt: `Client brief:\n${briefText(brief)}${context}${revision}`,
     schema,

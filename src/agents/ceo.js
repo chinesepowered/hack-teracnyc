@@ -1,4 +1,4 @@
-import { GIGS, PRICE_BOUNDS, llmReady, teracReady, whopReady } from '../config.js';
+import { GIGS, PRICE_BOUNDS, teracReady, whopReady } from '../config.js';
 import { obj, str, arr, writeJson } from '../llm.js';
 import { db, findRound, log, stats, touch } from '../store.js';
 import { closeRound, ensureRound, validRatings } from './honey.js';
@@ -31,7 +31,6 @@ Review rounds need several delivered first drafts. Close a round early only if t
 Leave the before/after round for after revisions exist. Prefer few, well-reasoned decisions; "none" is a fine answer.`;
 
 export async function boardMeeting(trigger = 'scheduled') {
-  if (!llmReady()) return null;
   const s = stats();
   const now = new Date().toLocaleString('en-US', { timeZone: 'America/New_York' });
   const snapshot = {
@@ -48,7 +47,7 @@ export async function boardMeeting(trigger = 'scheduled') {
     samples: db.orders.filter((o) => o.sample).length,
     lastDecisions: db.decisions.slice(-3).map((d) => d.memo),
   };
-  const out = await writeJson({ system: SYSTEM, prompt: `Board meeting snapshot:\n${JSON.stringify(snapshot, null, 1)}`, schema: SCHEMA, effort: 'high' });
+  const out = await writeJson({ agent: 'bara', system: SYSTEM, prompt: `Board meeting snapshot:\n${JSON.stringify(snapshot, null, 1)}`, schema: SCHEMA, effort: 'high' });
 
   const applied = [];
   for (const d of out.decisions) {

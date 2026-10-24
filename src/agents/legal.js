@@ -1,5 +1,5 @@
-import { SUPPORT_EMAIL, llmReady } from '../config.js';
-import { write } from '../llm.js';
+import { SUPPORT_EMAIL } from '../config.js';
+import { agentMode, write } from '../llm.js';
 import { db, log, touch } from '../store.js';
 
 export const DOCS = { terms: 'Terms of Service', privacy: 'Privacy Policy', refunds: 'Refund Policy' };
@@ -57,11 +57,11 @@ If we fail to deliver, or you are unhappy with the work, email ${SUPPORT_EMAIL} 
 };
 
 export async function draftPolicies() {
-  if (!llmReady()) return;
+  if (agentMode()) return; // the built-in policies stand
   for (const [doc, title] of Object.entries(DOCS)) {
     if (db.legal[doc]) continue;
     try {
-      const md = await write({ system: SYSTEM, prompt: `Write our ${title}.\n\nFacts:\n${FACTS}`, effort: 'medium', maxTokens: 8000 });
+      const md = await write({ agent: 'lex', system: SYSTEM, prompt: `Write our ${title}.\n\nFacts:\n${FACTS}`, effort: 'medium', maxTokens: 8000 });
       db.legal[doc] = { at: new Date().toISOString(), md };
       log('lex', `Drafted our ${title}`);
       touch('legal');

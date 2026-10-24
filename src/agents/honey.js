@@ -1,6 +1,7 @@
 import { BASE_URL, TERAC, teracReady } from '../config.js';
 import { db, findOrder, findRound, log, newId, touch } from '../store.js';
 import { runHoney } from '../terac.js';
+import { agentMode } from '../llm.js';
 import { revise } from './workers.js';
 
 export const ITEMS_PER_ROUND = 6;
@@ -171,13 +172,14 @@ export async function closeRound(roundId, why = 'target reached') {
 // Called on a timer: keep every open round moving without anyone pressing buttons.
 let ticking = false;
 export async function tick() {
-  if (ticking || !teracReady()) return;
+  if (ticking) return;
   ticking = true;
   try {
     for (const round of db.rounds.filter((r) => r.status !== 'closed')) {
       attachItems(round);
       const done = validRatings(round).length;
       if (done >= round.target) { await closeRound(round.id); continue; }
+      if (agentMode() || !teracReady()) continue; // Terac steps come from the agent via /api/agent/*
       const readyToLaunch = round.kind === 'review' ? round.items.length >= 3 : round.items.length >= 3;
       if (round.status === 'draft' || round.status === 'recruiting') {
         await recruit(round, { allowLaunch: readyToLaunch });

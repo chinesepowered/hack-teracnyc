@@ -4,7 +4,8 @@ import {
   ADMIN_TOKEN_ENV, BASE_URL, CEO_INTERVAL_MIN, DEMO_MODE, GIGS, PORT, STAFF, TERAC_POLL_MIN,
   llmReady, teracReady, whopReady,
 } from './config.js';
-import { bus, db, findOrder, findRound, log, newId, save, stats, touch } from './store.js';
+import { bus, db, findOrder, findRound, log, newId, resetDb, save, stats, touch } from './store.js';
+import { agentMode, completeJob, failJob, orphanStaleJobs, pendingJobs } from './llm.js';
 import { createCheckout, getPayment, verifyWebhook } from './whop.js';
 import { boardMeeting, priceOf } from './agents/ceo.js';
 import { draftPosts } from './agents/cmo.js';
@@ -63,7 +64,8 @@ async function onPayment(payment) {
   fulfill(order.id);
 }
 
-app.use(express.json({ limit: '200kb' }));
+const smallJson = express.json({ limit: '200kb' });
+app.use((req, res, next) => (req.path === '/api/agent/import' ? next() : smallJson(req, res, next)));
 app.use('/static', express.static('public', { maxAge: '10m' }));
 
 const html = (res, body) => res.type('html').send(body);
@@ -250,9 +252,14 @@ app.get('/legal/:doc', (req, res) => {
 app.get('/demo/title', (req, res) => html(res, ui.titleCard({ line1: clip(req.query.l1, 80) || 'CapyGigs', line2: clip(req.query.l2, 120) || 'Freelancers that never sleep (but nap a lot)' })));
 
 app.get('/admin', (req, res) => html(res, ui.adminPage()));
-app.post('/api/admin/:action', async (req, res) => {
+
+function isAdmin(req) {
   const given = String(req.headers.authorization || '').replace(/^Bearer /, '');
-  if (given.length !== ADMIN_TOKEN.length || !crypto.timingSafeEqual(Buffer.from(given), Buffer.from(ADMIN_TOKEN))) return res.status(401).json({ error: 'bad token' });
+  return given.length === ADMIN_TOKEN.length && crypto.timingSafeEqual(Buffer.from(given), Buffer.from(ADMIN_TOKEN));
+}
+const adminOnly = (req, res, next) => (isAdmin(req) ? next() : res.status(401).json({ error: 'bad token' }));
+
+app.post('/api/admin/:action', adminOnly, async (req, res) => {
   try {
     const action = req.params.action;
     const out =
@@ -271,6 +278,94 @@ app.post('/api/admin/:action', async (req, res) => {
   }
 });
 
+// ---------- agent API: the external Claude agent claims work and reports back ----------
+const jobView = (j) => ({ id: j.id, kind: j.kind, agent: j.agent, createdAt: j.createdAt, system: j.system, prompt: j.prompt, schema: j.schema });
+
+app.get('/api/agent/jobs', adminOnly, (req, res) => res.json(pendingJobs().map(jobView)));
+
+// Long-poll: answers as soon as there is work (or after ?max seconds). Also keeps a sleepy host awake.
+app.get('/api/agent/wait', adminOnly, (req, res) => {
+  const max = Math.min(55, Number(req.query.max) || 25) * 1000;
+  const reply = () => res.json({ pending: pendingJobs().length });
+  if (pendingJobs().length) return reply();
+  const timer = setTimeout(() => { bus.off('job', onJob); reply(); }, max);
+  const onJob = () => { clearTimeout(timer); bus.off('job', onJob); setTimeout(reply, 200); };
+  bus.on('job', onJob);
+  req.on('close', () => { clearTimeout(timer); bus.off('job', onJob); });
+});
+
+app.post('/api/agent/jobs/:id/complete', adminOnly, (req, res) => {
+  try {
+    completeJob(req.params.id, req.body.result);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/agent/jobs/:id/fail', adminOnly, (req, res) => {
+  try {
+    failJob(req.params.id, req.body.error || 'failed');
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// The agent narrates what it does outside the server (e.g. Terac MCP calls) into the HQ feed.
+app.post('/api/agent/log', adminOnly, (req, res) => {
+  const agent = STAFF[req.body.agent] ? req.body.agent : 'bara';
+  log(agent, clip(req.body.text, 400), req.body.kind ? { kind: clip(req.body.kind, 20) } : {});
+  if (req.body.teracTool) {
+    db.teracCalls ??= [];
+    db.teracCalls.push({ at: new Date().toISOString(), tool: clip(req.body.teracTool, 80), isError: Boolean(req.body.isError) });
+    save();
+  }
+  res.json({ ok: true });
+});
+
+// Honey's Terac state for a round, as reported by the agent.
+app.post('/api/agent/rounds/:id', adminOnly, (req, res) => {
+  const round = findRound(req.params.id);
+  if (!round) return res.status(404).json({ error: 'no such round' });
+  const { status, live, ...terac } = req.body || {};
+  round.terac = { ...round.terac, ...terac, ...(status ? { status } : {}), checkedAt: new Date().toISOString() };
+  if (round.status === 'draft') round.status = 'recruiting';
+  if (live && round.status !== 'closed') round.status = 'live';
+  touch('round', { id: round.id });
+  res.json({ ok: true, round: { id: round.id, status: round.status, terac: round.terac, url: `${BASE_URL}/rate/${round.id}` } });
+});
+
+app.get('/api/agent/rounds', adminOnly, (req, res) => res.json(db.rounds.map((r) => ({
+  id: r.id, kind: r.kind, status: r.status, target: r.target, items: r.items.length, url: `${BASE_URL}/rate/${r.id}`, terac: r.terac,
+  validReviews: validRatings(r).length,
+  codes: db.ratings.filter((x) => x.roundId === r.id && x.complete).map((x) => ({ code: x.code, valid: validRatings(r).includes(x), approved: Boolean(x.approved) })),
+}))));
+
+app.post('/api/agent/rounds/:id/approved', adminOnly, (req, res) => {
+  const codes = new Set(req.body.codes || []);
+  let n = 0;
+  for (const r of db.ratings) if (r.roundId === req.params.id && codes.has(r.code) && !r.approved) { r.approved = true; n++; }
+  if (n) log('honey', `Approved ${n} human reviewers on Terac`);
+  touch('round', { id: req.params.id });
+  res.json({ ok: true, approved: n });
+});
+
+app.post('/api/agent/rounds/:id/close', adminOnly, async (req, res) => {
+  closeRound(req.params.id, clip(req.body.reason, 120) || 'closed by Honey').catch((e) => log('honey', `Close failed: ${e.message}`));
+  res.json({ ok: true });
+});
+
+// Backups: the free host's disk is temporary, so the agent keeps copies.
+app.get('/api/agent/export', adminOnly, (req, res) => res.json(db));
+app.post('/api/agent/import', adminOnly, express.json({ limit: '20mb' }), (req, res) => {
+  if (!req.body?.orders) return res.status(400).json({ error: 'not a CapyGigs export' });
+  resetDb(req.body);
+  orphanStaleJobs();
+  log('bara', 'Restored company records from the latest backup');
+  res.json({ ok: true, orders: db.orders.length });
+});
+
 // What the demo video should show: the best public order and a round with something to grade.
 app.get('/api/showcase', (req, res) => {
   const order = db.orders
@@ -280,23 +375,21 @@ app.get('/api/showcase', (req, res) => {
   res.json({ orderId: order?.id ?? null, hasRevision: (order?.deliverables.length ?? 0) > 1, roundId: round?.id ?? null });
 });
 
-app.get('/healthz', (req, res) => res.json({ ok: true, llm: llmReady(), whop: whopReady(), terac: teracReady() }));
+app.get('/healthz', (req, res) => res.json({ ok: true, brain: agentMode() ? 'agent queue' : 'claude api', whop: whopReady(), terac: teracReady(), pendingJobs: pendingJobs().length }));
 
 // ---------- autonomy loop ----------
 function startAgents() {
   const safe = (name, fn) => () => Promise.resolve().then(fn).catch((err) => log(name, `Error: ${err.message}`, { level: 'error' }));
+  orphanStaleJobs();
+  if (agentMode()) log('bara', 'Running on the agent queue: a Claude agent picks up every job through /api/agent');
   // Crash recovery: finish anything that was paid but not delivered.
   for (const o of db.orders) if (o.paidAt && !o.deliverables.length && o.status !== 'failed') fulfill(o.id);
-  if (!llmReady()) {
-    log('bara', 'No ANTHROPIC_API_KEY set, so the agents are on a nap break');
-    return;
-  }
   setTimeout(safe('lex', draftPolicies), 2000);
   if (!db.posts.length) setTimeout(safe('hype', () => draftPosts('launch day')), 4000);
-  if (teracReady() && !db.rounds.length) {
+  if (!db.rounds.length) {
     setTimeout(safe('honey', async () => {
       ensureRound('review');
-      await tick(); // request the Terac quote right away; quotes can take a while
+      await tick(); // in API mode this requests the Terac quote right away; quotes can take a while
       await createSamples(6);
     }), 6000);
   }

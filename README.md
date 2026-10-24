@@ -19,7 +19,15 @@ Zero Human Company Hackathon NYC (Terac). Customers order small gigs (logo packs
 
 Watch them at `/hq`. The before/after evidence is at `/report`, and Terac participants grade at `/rate/<round>`.
 
-## Run it (about 15 minutes)
+## Brains: Claude API or Claude Code
+
+With `ANTHROPIC_API_KEY` set, the server calls Claude directly. Without it, the server runs in **agent mode**: every piece of thinking (draw this logo, write this copy, hold a board meeting, write launch posts) becomes a job on a queue. A Claude Code agent claims each job with `node scripts/agent.js`, does the work and posts the result back; results are schema-checked before they are accepted. The same agent drives Honey's Terac steps with `node scripts/terac-cli.js` and keeps backups of the company records.
+
+## Hosting on Render (free)
+
+New → Web Service → this repo and branch, build `npm install`, start `npm start`, Free instance. Environment: `BASE_URL` (the onrender.com URL), `ADMIN_TOKEN`, `WHOP_API_KEY`, `WHOP_COMPANY_ID`, `WHOP_WEBHOOK_SECRET`, `TERAC_PARTICIPANTS=10`. The free disk is temporary, so the agent backs up the records with `scripts/agent.js backup` and can restore them with `scripts/agent.js restore`.
+
+## Run it locally (about 15 minutes)
 
 ```bash
 npm install
