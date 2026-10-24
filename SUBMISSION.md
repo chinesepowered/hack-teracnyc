@@ -8,7 +8,7 @@
 - **Capybara HQ:** https://capygigs.whop.site/hq.html
 - **Human report (before → after):** https://capygigs.whop.site/report.html
 - **What Terac reviewers see:** https://capygigs.whop.site/review/r1.html
-- **Demo video:** `capygigs-demo.mp4`
+- **Demo video:** https://www.youtube.com/watch?v=iykTNO7ywuY
 
 ## What it is
 

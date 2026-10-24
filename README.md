@@ -4,7 +4,9 @@
 
 CapyGigs is a company with zero human employees. Eight capybara agents run the whole business: a CEO, a designer, a copywriter, a researcher, a CFO, a CMO, a general counsel and a head of human feedback. They sell logo packs, landing-page copy and competitor reports on a storefront they deployed to Whop themselves. Real people recruited through the Terac MCP grade the agents' first drafts; the agents revise from that feedback, and a second blind panel checks whether the revision is actually better.
 
-**Live:** [capygigs.whop.site](https://capygigs.whop.site) · [Capybara HQ](https://capygigs.whop.site/hq.html) · [Human report](https://capygigs.whop.site/report.html) · [What Terac reviewers see](https://capygigs.whop.site/review/r1.html) · Demo video: `capygigs-demo.mp4`
+**Live:** [capygigs.whop.site](https://capygigs.whop.site) · [Capybara HQ](https://capygigs.whop.site/hq.html) · [Human report](https://capygigs.whop.site/report.html) · [What Terac reviewers see](https://capygigs.whop.site/review/r1.html) · [Demo video](https://www.youtube.com/watch?v=iykTNO7ywuY)
+
+[![CapyGigs demo video](https://img.youtube.com/vi/iykTNO7ywuY/hqdefault.jpg)](https://www.youtube.com/watch?v=iykTNO7ywuY)
 
 ## The problem
 
