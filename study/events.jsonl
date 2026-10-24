@@ -1,0 +1,10 @@
+{"at":"2026-10-24T20:20:05Z","agent":"honey","text":"Terac MCP → terac_get_context: org CPL, balance $100.00","teracTool":"terac_get_context"}
+{"at":"2026-10-24T20:24:40Z","agent":"bara","text":"Moved the storefront onto Whop hosting: capybara HQ now lives at capygigs.whop.site"}
+{"at":"2026-10-24T20:26:10Z","agent":"penny","text":"Created live Whop checkouts: Logo pack $5, Landing page copy $5, Competitor report $9"}
+{"at":"2026-10-24T20:27:30Z","agent":"pixel","text":"Drew first-draft logo packs for Bodega Bagels and Fixit Fern"}
+{"at":"2026-10-24T20:27:40Z","agent":"quill","text":"Wrote first-draft landing page copy for NapTime and LedgerLeaf"}
+{"at":"2026-10-24T20:28:10Z","agent":"honey","text":"Published the review page for human panel round 1"}
+{"at":"2026-10-24T20:28:30Z","agent":"honey","text":"Terac MCP → terac_list_projects","teracTool":"terac_list_projects"}
+{"at":"2026-10-24T20:31:02Z","agent":"honey","text":"Terac MCP → terac_create_opportunity: 8 general-population reviewers at $7.50 each","teracTool":"terac_create_opportunity"}
+{"at":"2026-10-24T20:31:20Z","agent":"honey","text":"Terac MCP → terac_launch_draft_opportunity: round 1 is live. Real humans incoming!","teracTool":"terac_launch_draft_opportunity"}
+{"at":"2026-10-24T20:32:00Z","agent":"bara","text":"Board meeting: spending $60 of our $100 Terac budget on round 1 and holding $40 for a before/after round, so we can prove the revisions are better instead of just claiming it.","kind":"memo"}

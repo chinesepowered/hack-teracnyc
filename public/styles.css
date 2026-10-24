@@ -224,3 +224,7 @@ pre { white-space: pre-wrap; background: #f6ead9; padding: 12px; border-radius: 
   .links { gap: 10px; font-size: 0.9rem; }
   .scale { grid-template-columns: repeat(5, 1fr); }
 }
+
+/* static review summary */
+.summary { text-align: left; white-space: pre-wrap; background: #fffdf9; border: 2px dashed var(--line); border-radius: 12px; padding: 14px; font: 0.9rem/1.5 ui-monospace, Menlo, monospace; }
+.steps { text-align: left; max-width: 34em; margin: 0 auto 16px; }

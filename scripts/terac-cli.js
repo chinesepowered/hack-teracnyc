@@ -17,7 +17,7 @@ if (cmd === 'tools') {
   const { tools } = await client.listTools();
   for (const t of tools) console.log(`\n## ${t.name}\n${(t.description || '').trim()}\n${JSON.stringify(t.inputSchema)}`);
 } else if (cmd === 'call') {
-  const result = await client.callTool({ name, arguments: JSON.parse(json || '{}') });
+  const result = await client.callTool({ name, arguments: JSON.parse(json || '{}') }, undefined, { timeout: 240000 });
   for (const c of result.content || []) console.log(c.type === 'text' ? c.text : JSON.stringify(c));
   if (result.isError) console.log('(tool reported an error)');
   const base = process.env.AGENT_URL;
