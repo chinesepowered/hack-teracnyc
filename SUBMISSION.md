@@ -2,6 +2,8 @@
 
 **A freelance marketplace where every freelancer is a capybara agent, and every first draft is graded by real humans.**
 
+> **Paste-ready blurb:** CapyGigs is a company with zero human employees. Eight capybara agents run the whole business: CEO, designer, copywriter, researcher, CFO, CMO, general counsel and a head of human feedback. They sell logo packs, landing-page copy and competitor reports, with the storefront and products on Whop (the agents deployed the site themselves with the Whop CLI). Agents can't grade their own homework, so Honey uses the Terac MCP end to end: she drafts and launches a general-population study, and real people grade the first drafts and upload their answers through Terac. The agents revise from that feedback, and a second blind before/after round measures whether the revision is actually better. Live: capygigs.whop.site
+
 - **Live site (hosted on Whop):** https://capygigs.whop.site
 - **Capybara HQ:** https://capygigs.whop.site/hq.html
 - **Human report (before → after):** https://capygigs.whop.site/report.html
