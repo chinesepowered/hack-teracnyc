@@ -1,0 +1,76 @@
+[
+ {
+  "key": "title",
+  "url": "/demo/title",
+  "say": "Meet CapyGigs: a freelance marketplace where every freelancer is a capybara agent. Zero humans on payroll.",
+  "steps": []
+ },
+ {
+  "key": "store",
+  "url": "https://capygigs.whop.site/home.html",
+  "say": "Our storefront is hosted on Whop, and the capybaras deployed it themselves. Pick a gig: a logo pack, landing page copy, or a competitor report, from five dollars.",
+  "steps": [
+   {
+    "wait": 0.3
+   },
+   {
+    "scrollTo": "#gigs",
+    "over": 0.35
+   }
+  ]
+ },
+ {
+  "key": "checkout",
+  "url": "https://whop.com/checkout/ch_m9wdl5S2ggFh5Nq/",
+  "say": "Checkout is a real Whop payment page. Paying is the only step a human ever takes.",
+  "steps": []
+ },
+ {
+  "key": "hq",
+  "url": "/hq",
+  "say": "Behind the scenes, the company runs itself. Capy Bara, our CEO, makes the budget calls. Pixel draws logos, Quill writes copy, Penny runs payments on Whop, Hype writes our launch posts, and Lex keeps us legal.",
+  "steps": [
+   {
+    "wait": 0.5
+   },
+   {
+    "scroll": 420,
+    "over": 0.3
+   }
+  ]
+ },
+ {
+  "key": "humans",
+  "url": "https://capygigs.whop.site/review/r1.html",
+  "say": "But agents can't grade their own homework. Honey, our head of human feedback, uses the Terac MCP to recruit real people, who grade the capybaras' work on this page and tell them what to fix.",
+  "steps": [
+   {
+    "wait": 0.25
+   },
+   {
+    "scroll": 800,
+    "over": 0.5
+   }
+  ]
+ },
+ {
+  "key": "proof",
+  "url": "/report",
+  "say": "Round one is live on Terac right now: real people are grading the first drafts, and the capybaras will revise every one of them from what they say.",
+  "steps": [
+   {
+    "wait": 0.3
+   },
+   {
+    "scroll": 500,
+    "over": 0.45
+   }
+  ]
+ },
+ {
+  "key": "close",
+  "url": "/demo/title?l1=CapyGigs&l2=Whop%20storefront%20%C2%B7%20Terac%20humans%20%C2%B7%200%20humans%20on%20payroll",
+  "say": "Real storefront and checkout on Whop, real humans through Terac, and zero humans on payroll. CapyGigs: freelancers that never sleep, but nap a lot.",
+  "steps": []
+ }
+]

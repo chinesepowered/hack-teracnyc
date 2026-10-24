@@ -35,8 +35,13 @@ const prices = Object.fromEntries(Object.values(GIGS).map((g) => [g.id, state?.p
 const home = staticize(ui.home({ prices, paused: {}, stats }));
 write('index.html', home);
 write('home.html', home);
-if (state?.hq) write('hq.html', staticize(ui.hq(state.hq)));
-if (state?.reportHtml) write('report.html', staticize(state.reportHtml));
+// HQ and report snapshots exported from the back office (real records), if given.
+if (flags.snapshots) {
+  for (const f of ['hq.html', 'report.html']) {
+    const file = path.join(flags.snapshots, f);
+    if (fs.existsSync(file)) write(f, staticize(fs.readFileSync(file, 'utf8')));
+  }
+}
 for (const [doc, title] of Object.entries(DOCS)) write(`legal/${doc}.html`, staticize(ui.legalPage(title, policy(doc))));
 write('thanks.html', staticize(ui.layout({
   title: 'Thank you!',

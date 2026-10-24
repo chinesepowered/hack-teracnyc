@@ -106,6 +106,29 @@ const scenes = [
   { key: 'close', run: (page) => go(page, '/demo/title?l1=CapyGigs&l2=' + encodeURIComponent('0 humans on payroll · real humans in the loop')) },
 ];
 
+// --scenes=file.json replaces the built-in walkthrough: [{ key, url, say, steps }], where url is absolute or
+// relative to --url and steps are {wait: f} | {scroll: px, over: f} | {scrollTo: selector, over: f} |
+// {type: [selector, text]} | {hover: selector}; f is a fraction of the scene's narration time.
+if (args.scenes) {
+  const custom = JSON.parse(fs.readFileSync(args.scenes, 'utf8'));
+  scenes.length = 0;
+  for (const s of custom) {
+    lines[s.key] = s.say;
+    scenes.push({ key: s.key, run: async (page, d) => {
+      const external = /^https?:/.test(s.url);
+      await page.goto(external ? s.url : BASE + s.url, { waitUntil: external ? 'domcontentloaded' : 'networkidle', timeout: 20000 }).catch(() => {});
+      if (external) await page.waitForTimeout(1200);
+      for (const st of s.steps || []) {
+        if (st.wait) await page.waitForTimeout(d * st.wait);
+        else if (st.scroll) await scrollBy(page, st.scroll, d * (st.over || 0.3));
+        else if (st.scrollTo) await scrollToEl(page, st.scrollTo, d * (st.over || 0.3));
+        else if (st.type) await page.type(st.type[0], st.type[1], { delay: 45 }).catch(() => {});
+        else if (st.hover) await page.hover(st.hover).catch(() => {});
+      }
+    } });
+  }
+}
+
 // ---------- narration ----------
 console.log(`Narrating ${scenes.length} scenes with AssemblyAI voice "${VOICE}"…`);
 const audio = await Promise.all(scenes.map(async (scene, i) => {
