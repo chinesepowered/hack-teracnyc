@@ -1,0 +1,35 @@
+{
+  "name": "capygigs",
+  "version": "1.0.0",
+  "description": "CapyGigs: a freelance marketplace where every freelancer is a capybara agent",
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node scripts/check.js",
+    "video": "node scripts/make-video.js",
+    "demo:seed": "DATA_FILE=data/demo.json node scripts/seed-demo.js",
+    "demo": "DEMO_MODE=1 NO_AGENTS=1 DATA_FILE=data/demo.json node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chinesepowered/hack-teracnyc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chinesepowered/hack-teracnyc/issues"
+  },
+  "homepage": "https://github.com/chinesepowered/hack-teracnyc#readme",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "dotenv": "^18.0.9",
+    "express": "^4.22.3",
+    "https-proxy-agent": "^9.1.0",
+    "ws": "^8.22.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
