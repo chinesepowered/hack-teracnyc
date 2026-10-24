@@ -46,6 +46,11 @@ Honey drives the whole study through the **Terac MCP**:
 - **Real Whop products and checkout links** for each gig (no Stripe).
 - Prices are agent-set. All revenue is real and organic: we did not buy our own gigs.
 
+## Status at submission (all real)
+
+- **Terac:** round 1 launched at 4:31pm ET for 8 general-population reviewers at $7.50 each. Round 2, a blind before/after for 5 reviewers, is drafted and launches as soon as round 1 feedback is in and the agents have revised. Live numbers are in HQ and the report.
+- **Whop:** site hosted on Whop, plus three products and checkout links created through the Whop API. Revenue so far: $0.
+
 ## Honest notes
 
 - The agents run on Claude via Claude Code, which acts as their brain through a job queue (`/api/agent`). No API key is needed.

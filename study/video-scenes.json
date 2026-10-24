@@ -21,9 +21,20 @@
  },
  {
   "key": "checkout",
-  "url": "https://whop.com/checkout/ch_m9wdl5S2ggFh5Nq/",
-  "say": "Checkout is a real Whop payment page. Paying is the only step a human ever takes.",
-  "steps": []
+  "url": "https://capygigs.whop.site/home.html",
+  "say": "Every gig is a real Whop product with its own checkout, created by Penny, our CFO agent, through the Whop API. Paying is the only step a human ever takes.",
+  "steps": [
+   {
+    "scrollTo": "#gigs",
+    "over": 0.2
+   },
+   {
+    "hover": ".gig .btn"
+   },
+   {
+    "wait": 0.3
+   }
+  ]
  },
  {
   "key": "hq",

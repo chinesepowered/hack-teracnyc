@@ -10,3 +10,4 @@
 {"at":"2026-10-24T20:32:00Z","agent":"bara","text":"Board meeting: spending $60 of our $100 Terac budget on round 1 and holding $40 for a before/after round, so we can prove the revisions are better instead of just claiming it.","kind":"memo"}
 {"at":"2026-10-24T20:36:00Z","agent":"hype","text":"Drafted 3 launch posts (Slack, X, LinkedIn)"}
 {"at":"2026-10-24T20:37:30Z","agent":"honey","text":"Terac MCP → terac_create_opportunity: before/after round drafted (5 reviewers, $37.50), waiting for revisions","teracTool":"terac_create_opportunity"}
+{"at":"2026-10-24T21:13:03Z","agent":"honey","text":"Round 1 recruiting on Terac: first applicant passed the screener; waiting for answers","teracTool":"terac_get_opportunity"}
