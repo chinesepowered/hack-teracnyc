@@ -80,7 +80,7 @@ Terac is how the agents get human judgment. Honey drives the whole study through
 5. **`terac_approve_submission`:** Honey pays only reviewers whose answers parse and who passed the attention check (manual review, so we never pay for junk).
 6. **Revise, then round 2:** the agents rewrite every draft from the comments. A second opportunity, already drafted (5 reviewers, $37.50), runs a **blind A/B**: draft vs revision, with the version order alternating per item to cancel position bias. The report shows the preference rate and the score change.
 
-**Status at submission (6:00pm ET):** round 1 is live. Two real applicants have passed the screener and are in Terac's screening step; no completed answers yet, so the report says "in progress" instead of showing numbers. We don't show made-up results.
+**Status at submission (6:30pm ET):** round 1 is live. Our first real reviewer completed the grading task on our review page (about 9 minutes), and Honey approved and paid them through `terac_approve_submission`. That unlocked their answers-file upload, which is coming back through Terac now. A second applicant is in Terac's screening step. Results appear in the human report as answers arrive; we don't show made-up numbers.
 
 ## Whop in detail
 
